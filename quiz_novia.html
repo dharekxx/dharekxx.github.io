@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cuánto conoces a tu novio? ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            border: 4px solid #fff;
+            transition: all 0.5s ease;
+        }
+
+        h1 { color: #ff6b81; font-size: 1.8rem; margin-bottom: 1rem; }
+        p { color: #555; }
+
+        .lives-container {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ff4757;
+        }
+
+        #question {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-grid { display: grid; gap: 10px; }
+
+        .btn {
+            background-color: #ffdde1;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 12px;
+            color: #ff6b81;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #ff6b81;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .btn.correct { background-color: #96c93d; color: white; }
+        .btn.wrong { background-color: #ff4757; color: white; }
+
+        .hide { display: none; }
+
+        /* Barra de progreso */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #f1f1f1;
+            border-radius: 50px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .progress { height: 100%; background-color: #ff6b81; width: 0%; transition: width 0.4s ease; }
+
+        /* Página final (Premio) */
+        .secret-page {
+            background: #fff0f3;
+            border: 2px dashed #ff6b81;
+            padding: 20px;
+            border-radius: 20px;
+        }
+        .secret-page h2 { color: #d63031; }
+
+        /* Animación corazones */
+        .heart {
+            position: absolute;
+            color: #ff6b81;
+            opacity: 0.6;
+            animation: float 6s linear infinite;
+            z-index: -1;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .gif-container img {
+            max-width: 150px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="left: 10%; animation-duration: 8s; font-size: 20px;" class="heart">❤️</div>
+    <div style="left: 30%; animation-duration: 6s; font-size: 30px;" class="heart">💖</div>
+    <div style="left: 70%; animation-duration: 9s; font-size: 25px;" class="heart">💕</div>
+    <div style="left: 90%; animation-duration: 7s; font-size: 22px;" class="heart">💘</div>
+
+    <div class="container" id="main-container">
+        
+        <div id="quiz-box">
+            <div class="lives-container" id="lives">❤️❤️❤️</div>
+            <div class="progress-bar"><div id="progress" class="progress"></div></div>
+            
+            <h1>Test de Amor ❤️</h1>
+            <div id="question">Pregunta...</div>
+            <div id="answer-buttons" class="btn-grid"></div>
+            
+            <div class="gif-container" id="gif-container"></div>
+        </div>
+
+        <div id="game-over-box" class="hide">
+            <h1 style="color: #ff4757;">¡Oh no! 💔</h1>
+            <p>Has fallado 3 veces... ¿De verdad me conoces?</p>
+            <img src="https://media.giphy.com/media/l2JhrYYxAD6N5gbla/giphy.gif" alt="Sad" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+            <button class="btn" onclick="startGame()">Intentar de nuevo (Te perdono)</button>
+        </div>
+
+        <div id="success-box" class="hide secret-page">
+            <h1>¡Felicidades, Amor! 🏆</h1>
+            <p>Contestaste todo super bien. Aquí tienes tu premio:</p>
+            
+            <hr style="border: 1px solid #ffb7b2;">
+            <h2>Vale por:</h2>
+            <h3 style="color: #555;">Una cena romántica y masajes 💆‍♀️💆‍♂️</h3>
+            <p>Te amo muchísimo, gracias por jugar.</p>
+            <img src="https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif" alt="Love" style="width: 100%; border-radius: 15px;">
+            <br><br>
+            <button class="btn" onclick="location.reload()">Jugar otra vez</button>
+        </div>
+    </div>
+
+    <script>
+        // --- TUS PREGUNTAS (Edita aquí) ---
+        const questionsSource = [
+            {
+                question: "¿Cuál es mi comida favorita?",
+                answers: [
+                    { text: "Pizza", correct: false },
+                    { text: "Tacos", correct: true },
+                    { text: "Sushi", correct: false },
+                    { text: "Lasaña", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué haría si ganara la lotería?",
+                answers: [
+                    { text: "Comprar una mansión", correct: false },
+                    { text: "Viajar por el mundo", correct: false },
+                    { text: "Comprar un coche deportivo", correct: true },
+                    { text: "Ahorrarlo todo", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es mi color favorito?",
+                answers: [
+                    { text: "Azul", correct: true },
+                    { text: "Rojo", correct: false },
+                    { text: "Negro", correct: false },
+                    { text: "Verde", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué prefiero hacer un viernes?",
+                answers: [
+                    { text: "Salir de fiesta", correct: false },
+                    { text: "Ver pelis contigo", correct: true },
+                    { text: "Ir al gimnasio", correct: false },
+                    { text: "Dormir temprano", correct: false }
+                ]
+            },
+            {
+                question: "¿Quién es mi superhéroe favorito?",
+                answers: [
+                    { text: "Batman", correct: true },
+                    { text: "Spider-Man", correct: false },
+                    { text: "Iron Man", correct: false },
+                    { text: "Superman", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué me molesta más?",
+                answers: [
+                    { text: "El tráfico", correct: false },
+                    { text: "La gente mentirosa", correct: true },
+                    { text: "Tener hambre", correct: false },
+                    { text: "El calor", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es mi sueño frustrado?",
+                answers: [
+                    { text: "Ser astronauta", correct: false },
+                    { text: "Ser futbolista", correct: true },
+                    { text: "Ser cantante", correct: false },
+                    { text: "Ser youtuber", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué apodo cursi te digo más?",
+                answers: [
+                    { text: "Bebé", correct: false },
+                    { text: "Princesa", correct: true },
+                    { text: "Amor", correct: false },
+                    { text: "Vida mía", correct: false }
+                ]
+            },
+            {
+                question: "¿Dónde nos dimos el primer beso?",
+                answers: [
+                    { text: "En el cine", correct: false },
+                    { text: "En una fiesta", correct: false },
+                    { text: "En tu casa", correct: true },
+                    { text: "En el parque", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuánto te amo?",
+                answers: [
+                    { text: "Demasiado", correct: true },
+                    { text: "Infinito", correct: true },
+                    { text: "Muchísimo", correct: true },
+                    { text: "Más que ayer", correct: true }
+                ]
+            }
+        ];
+
+        // VARIABLES DE JUEGO
+        let shuffledQuestions, currentQuestionIndex;
+        let wrongAnswers = 0;
+        const maxWrongs = 3;
+
+        const questionElement = document.getElementById('question');
+        const answerButtonsElement = document.getElementById('answer-buttons');
+        const livesElement = document.getElementById('lives');
+        const progressBar = document.getElementById('progress');
+        const gifContainer = document.getElementById('gif-container');
+        
+        // Cajas de pantalla
+        const quizBox = document.getElementById('quiz-box');
+        const gameOverBox = document.getElementById('game-over-box');
+        const successBox = document.getElementById('success-box');
+
+        function startGame() {
+            // Reiniciar estado
+            wrongAnswers = 0;
+            quizBox.classList.remove('hide');
+            gameOverBox.classList.add('hide');
+            successBox.classList.add('hide');
+            
+            // Barajar preguntas (Random)
+            shuffledQuestions = questionsSource.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            
+            updateLives();
+            showQuestion();
+        }
+
+        function updateLives() {
+            // Dibuja los corazones restantes
+            let hearts = "";
+            let livesLeft = maxWrongs - wrongAnswers;
+            for(let i=0; i<livesLeft; i++) hearts += "❤️";
+            for(let i=0; i<wrongAnswers; i++) hearts += "💔";
+            livesElement.innerText = hearts;
+        }
+
+        function showQuestion() {
+            resetState();
+            let currentQuestion = shuffledQuestions[currentQuestionIndex];
+            let questionNo = currentQuestionIndex + 1;
+            questionElement.innerText = questionNo + ". " + currentQuestion.question;
+
+            // Barra de progreso
+            let progressPercent = (currentQuestionIndex / shuffledQuestions.length) * 100;
+            progressBar.style.width = progressPercent + "%";
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+            gifContainer.innerHTML = "";
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                gifContainer.innerHTML = '<img src="https://media.giphy.com/media/MeIucAjPKoA120R7sN/giphy.gif" alt="Happy">';
+            } else {
+                selectedBtn.classList.add('wrong');
+                wrongAnswers++;
+                updateLives();
+                gifContainer.innerHTML = '<img src="https://media.giphy.com/media/OPU6KKlaIW6uuPSLLM/giphy.gif" alt="Sad">';
+            }
+
+            // Bloquear botones
+            Array.from(answerButtonsElement.children).forEach(button => {
+                if (button.dataset.correct === "true") button.classList.add('correct');
+                button.disabled = true;
+            });
+
+            setTimeout(() => {
+                // VERIFICAR SI PERDIÓ
+                if (wrongAnswers >= maxWrongs) {
+                    showGameOver();
+                } else {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < shuffledQuestions.length) {
+                        showQuestion();
+                    } else {
+                        showSuccessPage(); // GANÓ
+                    }
+                }
+            }, 1500);
+        }
+
+        function showGameOver() {
+            quizBox.classList.add('hide');
+            gameOverBox.classList.remove('hide');
+        }
+
+        function showSuccessPage() {
+            // Ocultamos el quiz
+            quizBox.classList.add('hide');
+            
+            // Mensaje de carga opcional para que se vea pro
+            // Puedes crear un div simple o usar el game-over-box temporalmente para el mensaje
+            document.body.innerHTML = '<h1 style="color:white; text-align:center;">¡Ganaste! ❤️<br>Redirigiendo a tu premio...</h1>';
+
+            // AQUÍ ES DONDE OCURRE LA MAGIA
+            // Cambia 'premios/carta_final.html' por el nombre real de tu carpeta y archivo
+            
+            setTimeout(() => {
+                window.location.href = "bomita/index.html"; 
+            }, 2000); // Espera 2 segundos antes de cambiar de página para dar emoción
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
